@@ -1,7 +1,7 @@
 # docker build -t brian/sz_sqs_consumer .
 # docker run --user $UID -it -v $PWD:/data -e AWS_DEFAULT_REGION -e AWS_SECRET_ACCESS_KEY -e AWS_ACCESS_KEY_ID -e AWS_SESSION_TOKEN -e SENZING_ENGINE_CONFIGURATION_JSON brian/sz_sqs_consumer -q <queue url>
 
-ARG BASE_IMAGE=senzing/senzingapi-runtime:latest
+ARG BASE_IMAGE=senzing/senzingapi-runtime:3.13.1
 FROM ${BASE_IMAGE}
 
 ENV REFRESHED_AT=2022-08-27
