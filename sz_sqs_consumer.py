@@ -11,10 +11,9 @@ import importlib
 import sys
 import os
 import time
-import random
 import boto3
 
-from senzing import G2Engine, G2Exception, G2EngineFlags, G2RetryTimeoutExceeded, G2BadInputException
+from senzing import G2Engine, G2RetryTimeoutExceeded, G2BadInputException
 
 INTERVAL = 10000
 LONG_RECORD = os.getenv("LONG_RECORD", default=300)
@@ -156,7 +155,7 @@ try:
                                 print(
                                     result
                                 )  # we would handle pushing to withinfo queues here BUT that is likely a second future task/executor
-                        except (G2RetryTimeoutExceeded, G2BadInputException) as err:
+                        except (G2RetryTimeoutExceeded, G2BadInputException):
                             # in SQS you have to push to deadletter
                             record = orjson.loads(msg[TUPLE_MSG]["Body"])
                             print(
