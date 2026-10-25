@@ -1,22 +1,20 @@
 #! /usr/bin/env python3
 
-import concurrent.futures
-
 import argparse
-import orjson
+import concurrent.futures
+import importlib
 import logging
+import os
+import sys
+import time
 import traceback
 
-import importlib
-import sys
-import os
-import time
 import boto3
-
-from senzing import G2Engine, G2RetryTimeoutExceeded, G2BadInputException
+import orjson
+from senzing import G2BadInputException, G2Engine, G2RetryTimeoutExceeded
 
 INTERVAL = 10000
-LONG_RECORD = os.getenv("LONG_RECORD", default=300)
+LONG_RECORD = int(os.getenv("LONG_RECORD", default="300"))
 
 TUPLE_MSG = 0
 TUPLE_STARTTIME = 1
@@ -94,7 +92,7 @@ try:
             "Please see https://senzing.zendesk.com/hc/en-us/articles/360038774134-G2Module-Configuration-and-the-Senzing-API",
             file=sys.stderr,
         )
-        exit(-1)
+        sys.exit(-1)
 
     # Initialize the G2Engine
     g2 = G2Engine()
@@ -109,8 +107,8 @@ try:
     if not queue_url:
         queue_url = os.getenv("SENZING_SQS_QUEUE_URL")
 
-    max_workers = int(os.getenv("SENZING_THREADS_PER_PROCESS", 0))
-    prefetch = int(os.getenv("SENZING_PREFETCH", -1))
+    max_workers = int(os.getenv("SENZING_THREADS_PER_PROCESS", "0"))
+    prefetch = int(os.getenv("SENZING_PREFETCH", "-1"))
 
     if not max_workers:  # reset to null for executors
         max_workers = None
@@ -292,9 +290,9 @@ try:
                         f'Still processing ({duration/60:.1f} min: {record["DATA_SOURCE"]} : {record["RECORD_ID"]}'
                     )
             executor.shutdown()
-            exit(-1)
+            raise SystemExit(-1) from err
 
 except Exception as err:
     print(err, file=sys.stderr)
     traceback.print_exc()
-    exit(-1)
+    raise SystemExit(-1) from err
